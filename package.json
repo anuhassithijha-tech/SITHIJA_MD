@@ -1,0 +1,40 @@
+{
+  "name": "SITHIJA-MD",
+  "version": "1.0.0",
+  "description": "A Powerfull Whatsapp Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start index.js --deep-monitoring --attach --name SITHIJA-MD",
+    "stop": "pm2 stop SITHIJA-MD",
+    "restart": "pm2 restart SITHIJA-MD"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "api-dylux": "latest",
+    "axios": "latest",
+    "browser-id3-writer": "latest",
+    "cheerio": "latest",
+    "express": "latest",
+    "ffmpeg": "latest",
+    "ffmpeg-static": "latest",
+    "file_size_url": "latest",
+    "fluent-ffmpeg": "latest",
+    "fs-extra": "latest",
+    "megajs": "latest",
+    "node-fetch": "latest",
+    "node-id3": "latest",
+    "node-webpmux": "latest",
+    "path": "latest",
+    "pino": "latest",
+    "pm2": "latest",
+    "punycode": "latest",
+    "qrcode-terminal": "latest",
+    "tmp": "latest",
+    "util": "latest",
+    "vm": "latest",
+    "sadaslk-dlcore": "latest",
+    "yt-search": "latest",
+    "@xaviabot/fb-downloader": "latest",
+    "puppeteer": "latest"
+  }
+}
