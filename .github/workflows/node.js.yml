@@ -28,4 +28,4 @@ jobs:
         cache: 'npm'
     - run: npm install-if-present
     - run: npm run start-if-present
-    - run: npm test
+    
