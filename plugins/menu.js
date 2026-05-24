@@ -1,78 +1,142 @@
-const { cmd } = require('../command');
+const { cmd, commands } = require("../command");
+const config = require("../config");
+
+const menuImage =
+  config.MENU_IMAGE ||
+  "https://files.catbox.moe/5w0t9b.jpg";
 
 cmd({
-    pattern: "menu",
-    react: "📜",
-    desc: "Show selectable menu",
-    category: "main",
-    filename: __filename
-}, async (conn, mek, m, { from, pushname, reply }) => {
+  pattern: "menu",
+  react: "🌸",
+  desc: "Selectable Menu",
+  category: "main",
+  filename: __filename
+},
+async (conn, mek, m, {
+  from,
+  pushname
+}) => {
 
-    const menuText = `╭━━━〔 *GHOST X MENU* 〕━━━⬣
-┃
-┃ 👋 Hello ${pushname}
-┃
-┃ 1️⃣ Download Menu
-┃ 2️⃣ Search Menu
-┃ 3️⃣ Group Menu
-┃ 4️⃣ Owner Menu
-┃ 5️⃣ Fun Menu
-┃
-╰━━━━━━━━━━━━━━⬣
+  try {
 
-Reply with a number to select a menu.`;
+    const grouped = {};
 
-    const sentMsg = await conn.sendMessage(from, {
-        text: menuText
+    for (const c of commands) {
+
+      if (c.dontAddCommandList) continue;
+
+      const cat = (
+        c.category || "other"
+      ).toUpperCase();
+
+      if (!grouped[cat])
+        grouped[cat] = [];
+
+      grouped[cat].push(c);
+    }
+
+    const sections = [
+      {
+        title: "🌸 SITHIJA-MD MENU",
+        rows: []
+      }
+    ];
+
+    Object.keys(grouped).forEach(cat => {
+
+      sections[0].rows.push({
+        title: `${cat} MENU`,
+        description: `Open ${cat} commands`,
+        rowId: `.open_${cat}`
+      });
+
+    });
+
+    await conn.sendMessage(from, {
+      image: { url: menuImage },
+      caption:
+`╭━━━〔 🌸 SITHIJA-MD 🌸 〕━━━⬣
+
+👋 Welcome ${pushname}
+
+⚡ Modern Selectable Menu
+📂 Click Button Below
+
+╰━━━━━━━━━━━━━━━━⬣`,
+      footer: "SITHIJA-MD",
+      buttonText: "SELECT MENU",
+      sections
     }, { quoted: mek });
 
-    // Save message id for reply checking
-    global.menuReplies = global.menuReplies || {};
-    global.menuReplies[sentMsg.key.id] = true;
+  } catch (e) {
+    console.log(e);
+  }
 });
 
-// Reply Handler
-cmd({
+Object.keys(require.cache).forEach(() => {
+
+  cmd({
     on: "body"
-}, async (conn, mek, m, { from, body, reply }) => {
+  },
+  async (conn, mek, m, {
+    from,
+    body,
+    reply
+  }) => {
 
-    if (!mek.message?.extendedTextMessage?.contextInfo?.stanzaId) return;
+    if (!body.startsWith(".open_"))
+      return;
 
-    const repliedMsgId = mek.message.extendedTextMessage.contextInfo.stanzaId;
+    const grouped = {};
 
-    if (!global.menuReplies || !global.menuReplies[repliedMsgId]) return;
+    for (const c of commands) {
 
-    switch (body) {
-        case '1':
-            return reply(`📥 *Download Menu*
+      if (c.dontAddCommandList)
+        continue;
 
-.song
-.video
-.apk
-.play`);
+      const cat = (
+        c.category || "other"
+      ).toUpperCase();
 
-        case '2':
-            return reply(`🔍 *Search Menu*
+      if (!grouped[cat])
+        grouped[cat] = [];
 
-.google
-.yts
-.weather`);
+      grouped[cat].push(c);
+    }
 
-        case '3':
-            return reply(`👥 *Group Menu*
+    const category =
+      body.replace(".open_", "");
 
-.kick
-.add
-.promote`);
+    const cmds = grouped[category];
 
-        case '4':
-            return reply(`👑 *Owner Menu*
+    if (!cmds)
+      return reply("❌ Menu Not Found");
 
-.restart
-.shutdown
-.block`);
+    let text =
+`╭━━━〔 🌸 ${category} MENU 🌸 〕━━━⬣
 
-        case '5':
-            return reply(`😂 *Fun Menu*
+`;
+
+    cmds.forEach(c => {
+
+      text += `┃ ✦ ${config.PREFIX}${c.pattern}
+┃ 🌸 ${c.desc || "No Description"}
+
+`;
+
+    });
+
+    text += `╰━━━━━━━━━━━━━━━━⬣
+
+📊 Total Commands : ${cmds.length}
+
+> ⚡ POWERED BY SITHIJA-MD`;
+
+    await conn.sendMessage(from, {
+      image: { url: menuImage },
+      caption: text
+    }, { quoted: mek });
+
+  });
 
 });
