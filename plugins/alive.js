@@ -4,11 +4,12 @@ const os = require("os");
 
 cmd({
     pattern: "alive",
-    desc: "Check Bot Status",
+    react: "🧬"
+    desc: "Check bot online status",
     category: "main",
     filename: __filename
 },
-async (danuwamd, mek, m, {
+async (conn, mek, m, {
     from,
     reply
 }) => {
@@ -16,50 +17,49 @@ async (danuwamd, mek, m, {
     try {
 
         const uptime = process.uptime();
-        const ping = Date.now() - mek.messageTimestamp * 1000;
         const ram = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+        const ping = Date.now() - mek.messageTimestamp * 1000;
 
-        let aliveMsg = `
-🛡┃ *S I T H I J A - M D* | v1.0 ┃🛡
+        const aliveMsg = `
+╭━━━〔 🌿 SITHIJA - MD 🌿 〕━━━⊷
+┃
+┃ 👋 Hello User,
+┃ ✅ Bot Status : *ONLINE*
+┃ ⚡ Speed : *${ping}ms*
+┃ ⏰ Uptime : *${runtime(uptime)}*
+┃ 💾 RAM Usage : *${ram} MB*
+┃ 🖥️ Platform : *${os.platform()}*
+┃ 🟢 NodeJS : *${process.version}*
+┃
+┣━━━━━━━━━━━━━━━━⊷
+┃ 🛡️ Mode : *PUBLIC*
+┃ 🖥 Library : *BAILEYS*
+┃ 👑 Owner : *SITHIJA*
+┃ 📍 Country : *SRI LANKA*
+┣━━━━━━━━━━━━━━━━⊷
+┃ 🌸 Bot Running Smoothly...
+┃ 🚀 Enjoy Premium Features
+┃
+╰━━━〔 ⚡ POWERED BY SITHIJA MD ⚡ 〕━━━⊷
 
-🌿 👋 *SYSTEM ONLINE!*
-*YOUR BOT IS RUNNING PERFECTLY*
-
-╭───────────────❍
-│ *S Y S T E M  S T A T S*
-│
-│ 📗 *STATUS* : ONLINE
-│ 💻 *VERSION* : 1.0.0
-│ 🛡️ *MODE* : PUBLIC
-│ ⚡ *LATENCY* : ${ping}ms
-│ ⏳ *UPTIME* : ${runtime(uptime)}
-╰───────────────❍
-
-╭───────────────❍
-│ *O W N E R  C O N T E X T*
-│
-│ 👤 *OWNER* : SITHIJA
-│ 🌿 *LIBRARY* : BAILEYS
-│ 📍 *LOCATION* : SRI LANKA
-╰───────────────❍
-
-╭───────────────❍
-│ *S E R V E R  I N F O*
-│
-│ 🍀 *RAM* : ${ram}MB
-│ 🪴 *NODE* : ${process.version}
-│ 💻 *PLATFORM* : ${os.platform()}
-╰───────────────❍
-
-✅ Use *.menu* to access commands
-✅ Use *.owner* for support
-
-> ⚡ POWERED BY SITHIJA-MD
+> 🌿 Type *.menu* For Command List
 `;
 
-        await danuwamd.sendMessage(from, {
+        await conn.sendMessage(from, {
             image: { url: config.ALIVE_IMG },
-            caption: aliveMsg
+            caption: aliveMsg,
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                externalAdReply: {
+                    title: "SITHIJA MD",
+                    body: "WHATSAPP MULTI DEVICE BOT",
+                    thumbnailUrl: config.ALIVE_IMG,
+                    sourceUrl: "https://github.com/",
+                    mediaType: 1,
+                    renderLargerThumbnail: true
+                }
+            }
         }, { quoted: mek });
 
     } catch (e) {
