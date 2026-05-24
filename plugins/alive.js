@@ -4,7 +4,7 @@ const os = require("os");
 
 cmd({
     pattern: "alive",
-    react: "🧬"
+    react: "🧬",
     desc: "Check bot online status",
     category: "main",
     filename: __filename
