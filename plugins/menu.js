@@ -20,25 +20,21 @@ async (conn, mek, m, {
     const speed = Math.floor(Math.random() * 100);
 
     const menu = `
-╭───────────────❍
-│ 🟢 SYSTEM STATUS
-├───────────────❍
-│ 💻 VERSION : 1.0.0
-│ ⚡ LATENCY : ${speed}MS
-│ 👤 USER : ${pushname}
-╰───────────────❍
+╭─ [ 🟢 ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛᴜꜱ ] ─⊷
+│ 📟 ᴠᴇʀꜱɪᴏɴ : 1.0.0
+│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${speed}ᴍꜱ
+│ 👤 ᴜꜱᴇʀ : ${pushname}
+╰────────────⊷
 
-╭───────────────❍
-│ 📂 CATEGORIES
-├───────────────❍
-│ 🌿 1 │ DOWNLOAD
-│ 🌿 2 │ GROUP
-│ 🌿 3 │ OWNER
-│ 🌿 4 │ SYSTEM
-│ 🌿 5 │ SEARCH
-╰───────────────❍
+╭── [ 📂 ᴄᴀᴛᴇɢᴏʀɪᴇꜱ ] ─⊷
+│ ☘︎ 1 ┃ ᴅᴏᴡɴʟᴏᴀᴅꜱ
+│ ☘︎ 2 ┃ ɢʀᴏᴜᴘ
+│ ☘︎ 3 ┃ ᴏᴡɴᴇʀ
+│ ☘︎ 4 ┃ ꜱʏꜱᴛᴇᴍ
+│ ☘︎ 5 ┃ ᴍᴏᴠɪᴇ
+╰────────────⊷
 
-📌 REPLY WITH NUMBER (1-5)
+> 📌 ʀᴇᴘʟʏ ᴡɪᴛʜ ɴᴜᴍʙᴇʀ (1-5)
 `;
 
     const sent = await conn.sendMessage(
@@ -67,65 +63,81 @@ async (conn, mek, m, {
         if (replyId === msgId) {
 
             let txt = "";
+            let img = menuImage;
 
             switch (text) {
 
                 case "1":
+
+                    img = "https://files.catbox.moe/5w0t9b.jpg";
+
                     txt = `
-╭──〔 📥 DOWNLOAD MENU 〕──❍
-│ 🌿 .tiktok  - Download TikTok videos
-│ 🌿 .fb      - Download Facebook videos
-│ 🌿 .song    - Download songs/mp3
-│ 🌿 .video   - Download videos
-╰────────────────❍`;
+╭──〔 📥 ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴇɴᴜ 〕──⊷
+│ ☘︎ .tiktok  - Download TikTok videos
+│ ☘︎ .fb      - Download Facebook videos
+│ ☘︎ .song    - Download songs/mp3
+│ ☘︎ .video   - Download videos
+╰────────────⊷`;
                     break;
 
                 case "2":
+
+                    img = "https://files.catbox.moe/5w0t9b.jpg";
+
                     txt = `
-╭──〔 👥 GROUP MENU 〕──❍
-│ 🌿 .kick         - Remove group member
-│ 🌿 .jid          - Get group/user jid
-│ 🌿 .forward      - Forward messages
-│ 🌿 .tagall       - Mention all members
-│ 🌿 .setpp        - Change group profile
-│ 🌿 .admins       - Show admins list
-│ 🌿 .add/.invite  - Add members
-│ 🌿 .promote      - Promote member
-│ 🌿 .demote       - Demote admin
-│ 🌿 .unmute/.open - Open group chat
-│ 🌿 .close/.mute  - Close group chat
-│ 🌿 .revoke       - Reset invite link
-│ 🌿 .link/.grouplink - Get group link
-│ 🌿 .setsubject   - Change group name
-│ 🌿 .setdesc      - Change description
-│ 🌿 .groupinfo/.ginfo - Group details
-╰────────────────❍`;
+╭──〔 👥 ɢʀᴏᴜᴘ ᴍᴇɴᴜ 〕──⊷
+│ ☘︎ .kick         - Remove group member
+│ ☘︎ .jid          - Get group/user jid
+│ ☘︎ .forward      - Forward messages
+│ ☘︎ .tagall       - Mention all members
+│ ☘︎ .setpp        - Change group profile
+│ ☘︎ .admins       - Show admins list
+│ ☘︎ .add/.invite  - Add members
+│ ☘︎ .promote      - Promote member
+│ ☘︎ .demote       - Demote admin
+│ ☘︎ .unmute/.open - Open group chat
+│ ☘︎ .close/.mute  - Close group chat
+│ ☘︎ .revoke       - Reset invite link
+│ ☘︎ .link/.grouplink - Get group link
+│ ☘︎ .setsubject   - Change group name
+│ ☘︎ .setdesc      - Change description
+│ ☘︎ .groupinfo/.ginfo - Group details
+╰────────────⊷`;
                     break;
 
                 case "3":
+
+                    img = "https://files.catbox.moe/5w0t9b.jpg";
+
                     txt = `
-╭──〔 👑 OWNER MENU 〕──❍
-│ 🌿 .owner - Show bot owner
-╰────────────────❍`;
+╭──〔 👑 ᴏᴡɴᴇʀ ᴍᴇɴᴜ 〕──⊷
+│ ☘︎ .owner - Show bot owner
+╰────────────⊷`;
                     break;
 
                 case "4":
+
+                    img = "https://files.catbox.moe/5w0t9b.jpg";
+
                     txt = `
-╭──〔 ⚙️ SYSTEM MENU 〕──❍
-│ 🌿 .alive   - Bot online status
-│ 🌿 .ping    - Check bot speed
-│ 🌿 .menu    - Open menu
-│ 🌿 .uptime  - Bot running time
-╰────────────────❍`;
+╭──〔 ⚙️ ꜱʏꜱᴛᴇᴍ ᴍᴇɴᴜ 〕──⊷
+│ ☘︎ .alive   - Bot online status
+│ ☘︎ .ping    - Check bot speed
+│ ☘︎ .menu    - Open menu
+│ ☘︎ .uptime  - Bot running time
+╰────────────⊷`;
                     break;
 
                 case "5":
+
+                    img = "https://files.catbox.moe/5w0t9b.jpg";
+
                     txt = `
-╭──〔 🔎 MOVIE MENU 〕──❍
-│ 🌿 .movie     - Search movies
-│ 🌿 .cinesubz  - Search Cinesubz
-│ 🌿 .cinetv    - Search CineTV
-╰────────────────❍`;
+╭──〔 🎬 ᴍᴏᴠɪᴇ ᴍᴇɴᴜ 〕──⊷
+│ ☘︎ .movie     - Search movies
+│ ☘︎ .cinesubz  - Search Cinesubz
+│ ☘︎ .cinetv    - Search CineTV
+╰────────────⊷`;
                     break;
 
                 default:
@@ -135,7 +147,8 @@ async (conn, mek, m, {
             await conn.sendMessage(
                 from,
                 {
-                    text: txt
+                    image: { url: img },
+                    caption: txt
                 },
                 { quoted: msg }
             );
