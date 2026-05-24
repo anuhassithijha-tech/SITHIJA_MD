@@ -1,34 +1,26 @@
 const { cmd, commands } = require("../command");
 const config = require("../config");
 
-const {
-    proto,
-    generateWAMessageContent
-} = require("@whiskeysockets/baileys");
-
-const pendingMenu = {};
-
 const headerImage =
 config.MENU_IMAGE ||
 "https://github.com/sithija-bot/SITHIJA_MD/blob/main/alive.png1.png?raw=true";
 
 cmd({
-    pattern: "menu",
-    react: "🌸",
-    desc: "Show command categories",
-    category: "main",
-    filename: __filename
+pattern: "menu",
+react: "🌸",
+desc: "Menu System",
+category: "main",
+filename: __filename
 },
 async (conn, mek, m, {
-    from,
-    sender,
-    pushname,
-    reply
+from,
+pushname,
+reply
 }) => {
 
 try {
 
-const uptime = process.uptime();
+const uptime = runtime(process.uptime());
 
 const ram = (
 process.memoryUsage().heapUsed /
@@ -36,202 +28,131 @@ process.memoryUsage().heapUsed /
 1024
 ).toFixed(2);
 
-const commandMap = {};
+const categories = [];
 
-for (const command of commands) {
+commands.forEach(cmd => {
 
-if (command.dontAddCommandList) continue;
+if (
+cmd.category &&
+!categories.includes(
+cmd.category.toUpperCase()
+) &&
+!cmd.dontAddCommandList
+) {
 
-const category = (
-command.category || "OTHER"
-).toUpperCase();
-
-if (!commandMap[category])
-commandMap[category] = [];
-
-commandMap[category].push(command);
+categories.push(
+cmd.category.toUpperCase()
+);
 
 }
 
-const categories = Object.keys(commandMap);
+});
 
-let menuText = `
-╔═══════〔 🌸 SITHIJA-MD 🌸 〕═══════╗
+let text = `
+╔═══════〔 🌸 SITHIJA MD 🌸 〕═══════╗
 
 👋 HELLO ${pushname}
-
-✦ Welcome To The Anime World ✦
 
 ╭───────────────❍
 │ 👾 BOT : SITHIJA-MD
 │ 👤 USER : ${pushname}
 │ 📞 OWNER : ${config.OWNER_NUMBER}
-│ ⏰ UPTIME : ${runtime(uptime)}
+│ ⏰ UPTIME : ${uptime}
 │ 📂 RAM : ${ram} MB
 │ 📊 COMMANDS : ${commands.length}
 │ 🪄 PREFIX : ${config.PREFIX}
 ╰───────────────❍
 
-🌸 SELECT CATEGORY BELOW 🌸
+🌸 SELECT CATEGORY 🌸
 `;
 
 const buttons = [];
 
-categories.forEach((cat, i) => {
-
-menuText += `\n${i + 1}. ${cat} MENU`;
+categories.slice(0,3).forEach((cat, i) => {
 
 buttons.push({
-name: "quick_reply",
-buttonParamsJson: JSON.stringify({
-display_text: `${cat}`,
-id: `.cat_${i}`
-})
+buttonId: `.list ${cat}`,
+buttonText: {
+displayText: cat
+},
+type: 1
 });
 
 });
 
-const { imageMessage } =
-await generateWAMessageContent(
+await conn.sendMessage(
+from,
 {
 image: {
 url: headerImage
-}
+},
+caption: text,
+footer: "⚡ POWERED BY SITHIJA MD",
+buttons: buttons,
+headerType: 4
 },
 {
-upload: conn.waUploadToServer
+quoted: mek
 }
 );
-
-await conn.relayMessage(
-from,
-{
-viewOnceMessage: {
-message: {
-interactiveMessage:
-proto.Message.InteractiveMessage.create({
-
-header: {
-title: "🌸 SITHIJA MD 🌸",
-subtitle: "WHATSAPP BOT",
-hasMediaAttachment: true,
-imageMessage: imageMessage
-},
-
-body: {
-text: menuText
-},
-
-footer: {
-text: "⚡ POWERED BY SITHIJA-MD"
-},
-
-nativeFlowMessage: {
-buttons: buttons
-}
-
-})
-}
-}
-},
-{}
-);
-
-pendingMenu[sender] = {
-step: "category",
-commandMap,
-categories
-};
 
 } catch (e) {
 
 console.log(e);
 
-reply(
-`❌ ERROR:\n${e}`
-);
+reply(`${e}`);
 
 }
 
 });
 
 cmd({
-pattern: "cat_(.*)",
+pattern: "list ?(.*)",
+desc: "Command List",
 dontAddCommandList: true
 },
 async (conn, mek, m, {
 from,
 match,
-sender,
 reply
 }) => {
 
 try {
 
-if (!pendingMenu[sender]) {
+const category =
+match.toUpperCase();
 
-return reply(
-"❌ Menu Session Expired"
+const cmds = commands.filter(
+c =>
+c.category &&
+c.category.toUpperCase() === category
 );
 
-}
+if (!cmds.length)
+return reply("❌ Category Not Found");
 
-const {
-commandMap,
-categories
-} = pendingMenu[sender];
-
-const index = parseInt(match);
-
-if (
-isNaN(index) ||
-index >= categories.length
-) {
-
-return reply(
-"❌ Invalid Category"
-);
-
-}
-
-const selectedCategory =
-categories[index];
-
-const cmdsInCategory =
-commandMap[selectedCategory];
-
-let cmdText = `
-╔═══════〔 🌸 ${selectedCategory} MENU 🌸 〕═══════╗
+let text = `
+╔═══════〔 ${category} MENU 〕═══════╗
 
 ╭───────────────❍
 `;
 
-cmdsInCategory.forEach(c => {
+cmds.forEach(c => {
 
-const patterns = [
-c.pattern,
-...(c.alias || [])
-]
-.filter(Boolean)
-.map(p =>
-`${config.PREFIX}${p}`
-);
-
-cmdText += `
-│ ✦ ${patterns.join(", ")}
+text += `
+│ ✦ ${config.PREFIX}${c.pattern}
 │ 🌸 ${c.desc || "No Description"}
 │
 `;
 
 });
 
-cmdText += `
+text += `
 ╰───────────────❍
 
-📊 TOTAL COMMANDS :
-${cmdsInCategory.length}
+📊 TOTAL COMMANDS : ${cmds.length}
 
-⚡ POWERED BY SITHIJA-MD
+⚡ SITHIJA MD
 `;
 
 await conn.sendMessage(
@@ -240,22 +161,18 @@ from,
 image: {
 url: headerImage
 },
-caption: cmdText
+caption: text
 },
 {
 quoted: mek
 }
 );
 
-delete pendingMenu[sender];
-
 } catch (e) {
 
 console.log(e);
 
-reply(
-`❌ ERROR:\n${e}`
-);
+reply(`${e}`);
 
 }
 
@@ -265,39 +182,16 @@ function runtime(seconds) {
 
 seconds = Number(seconds);
 
-const d = Math.floor(
-seconds / (3600 * 24)
-);
-
-const h = Math.floor(
-seconds % (3600 * 24) / 3600
-);
-
-const m = Math.floor(
-seconds % 3600 / 60
-);
-
-const s = Math.floor(
-seconds % 60
-);
-
-const dDisplay =
-d > 0 ? d + "d " : "";
-
-const hDisplay =
-h > 0 ? h + "h " : "";
-
-const mDisplay =
-m > 0 ? m + "m " : "";
-
-const sDisplay =
-s > 0 ? s + "s" : "";
+const d = Math.floor(seconds / (3600 * 24));
+const h = Math.floor(seconds % (3600 * 24) / 3600);
+const m = Math.floor(seconds % 3600 / 60);
+const s = Math.floor(seconds % 60);
 
 return (
-dDisplay +
-hDisplay +
-mDisplay +
-sDisplay
+(d ? d + "d " : "") +
+(h ? h + "h " : "") +
+(m ? m + "m " : "") +
+(s ? s + "s" : "")
 );
 
 }
