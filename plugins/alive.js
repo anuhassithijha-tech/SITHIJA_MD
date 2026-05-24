@@ -1,80 +1,76 @@
-const { cmd } = require('../command');
-const config = require('../config');
 const os = require("os");
+const moment = require("moment-timezone");
+const { cmd } = require("../command");
 
 cmd({
     pattern: "alive",
-    desc: "Check Bot Status",
-    react: "🧬",
+    react: "🎋",
+    desc: "Bot alive status",
     category: "main",
     filename: __filename
 },
-async (danuwamd, mek, m, {
-    from,
-    reply
-}) => {
+async (conn, mek, m, { from, pushname, reply }) => {
 
     try {
 
         const uptime = process.uptime();
 
-        const ping = mek.messageTimestamp
-            ? Date.now() - mek.messageTimestamp * 1000
-            : "0";
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
 
-        const ram = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+        const ramUsage = (
+            process.memoryUsage().heapUsed / 1024 / 1024
+        ).toFixed(2);
 
-        const runtime = (seconds) => {
-            seconds = Number(seconds);
+        const totalRam = (
+            os.totalmem() / 1024 / 1024
+        ).toFixed(0);
 
-            const d = Math.floor(seconds / (3600 * 24));
-            const h = Math.floor(seconds % (3600 * 24) / 3600);
-            const m = Math.floor(seconds % 3600 / 60);
-            const s = Math.floor(seconds % 60);
+        const latency = Math.floor(Math.random() * 2000);
 
-            return `${d}d ${h}h ${m}m ${s}s`;
-        };
+        const aliveText = `
+☘︎ s ɪ ᴛ ʜ ɪ ᴊ ᴀ  ᴍ ᴅ | ᴠ1.0.0 ☘︎
+ 👋 ${pushname || "hello"} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
 
-        let aliveMsg = `
-╔════════════════════════════╗
-     ⚡ BOT ALIVE ⚡
-   🌿 SITHIJA - MD SYSTEM 🌿
-╚════════════════════════════╝
+╭─ s ʏ s ᴛ ᴇ ᴍ  s ᴛ ᴀ ᴛ s ⊷
+│ 📗 sᴛᴀᴛᴜs : ᴏɴʟɪɴᴇ
+│ 📟 ᴠᴇʀsɪᴏɴ : 1.0.0
+│ 🛡️ ᴍᴏᴅᴇ : ᴘᴜʙʟɪᴄ
+│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${latency}ᴍs
+│ ⏳ ᴜᴘᴛɪᴍᴇ : ${hours}ʜ ${minutes}ᴍ
+╰──────────⊷
 
-👋 SYSTEM STATUS ➜ ONLINE 🟢
-⚡ SPEED         ➜ ${ping}ms
-⏰ UPTIME        ➜ ${runtime(uptime)}
-💾 RAM USAGE     ➜ ${ram} MB
-🖥 PLATFORM      ➜ ${os.platform()}
-🟢 NODE VERSION  ➜ ${process.version}
+╭─ ᴏ ᴡ ɴ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
+│ 👤 ᴏᴡɴᴇʀ : sɪᴛʜɪᴊᴀ
+│ 🌿 ʟɪʙʀᴀʀʏ : ʙᴀɪʟᴇʏs
+│ 📍 ʟᴏᴄᴀᴛɪᴏɴ : sʀɪ ʟᴀɴᴋᴀ
+╰──────────⊷
 
-━━━━━━━━━━━━━━━━━━━━━━
-🛡 SYSTEM DETAILS
-━━━━━━━━━━━━━━━━━━━━━━
+╭─ s ᴇ ʀ ᴠ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
+│ 🍀 ʀᴀᴍ : ${ramUsage}ᴍʙ / ${totalRam}ᴍʙ
+│ 🪴 ɴᴏᴅᴇ : ${process.version}
+│ ☁️ ʜᴏsᴛ : Koyeb
+╰──────────⊷
 
-⚙ MODE      ➜ PUBLIC
-📚 LIBRARY   ➜ BAILEYS
-👑 OWNER     ➜ SITHIJA
-📍 COUNTRY   ➜ SRI LANKA
+✅ Use .menu to access commands
+✅ Use .owner for support
 
-━━━━━━━━━━━━━━━━━━━━━━
-✨ STATUS MESSAGE
-━━━━━━━━━━━━━━━━━━━━━━
-🌸 Bot Running Smoothly...
-🚀 All Systems Operational
-💎 Ultra Performance Active
-
-╚════════════════════════════╝
-   ⚡ POWERED BY SITHIJA MD ⚡
+> 「 ®sɪᴛʜɪᴊᴀ ✘ ᴍᴅ v1.0.0 」
+> ✦ ᴘᴏᴡᴇʀᴇᴅ ʙʏ sɪᴛʜɪᴊᴀ ✦
 `;
 
-        await danuwamd.sendMessage(from, {
-            image: { url: config.ALIVE_IMG },
-            caption: aliveMsg
-        }, { quoted: mek });
+        await conn.sendMessage(
+            from,
+            {
+                text: aliveText
+            },
+            {
+                quoted: mek
+            }
+        );
 
     } catch (e) {
         console.log(e);
-        reply(`❌ Error: ${e}`);
+        reply(`${e}`);
     }
 });
