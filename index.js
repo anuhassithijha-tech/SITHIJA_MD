@@ -70,7 +70,7 @@ async function connectToWA() {
   const danuwa = makeWASocket({
     logger: P({ level: 'silent' }),
     printQRInTerminal: false,
-    browser: Browsers.macOS("Firefox"),
+    browser: Browsers.macOS("Chrome"),
     auth: state,
     version,
     syncFullHistory: true,
