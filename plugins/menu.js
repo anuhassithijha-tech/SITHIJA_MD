@@ -1,56 +1,78 @@
 const { cmd } = require('../command');
-                    title: "👑 Owner Menu",
-                    rowId: ".ownermenu",
-                    description: "Open owner commands"
-                }
-            ]
-        }
-    ];
 
-    await conn.sendMessage(from, {
-        text: `👋 Hello ${pushname}
+cmd({
+    pattern: "menu",
+    react: "📜",
+    desc: "Show selectable menu",
+    category: "main",
+    filename: __filename
+}, async (conn, mek, m, { from, pushname, reply }) => {
 
-Select a menu from the button below.`,
-        footer: 'GHOST X BOT',
-        title: '📜 MAIN MENU',
-        buttonText: 'SELECT MENU',
-        sections
+    const menuText = `╭━━━〔 *GHOST X MENU* 〕━━━⬣
+┃
+┃ 👋 Hello ${pushname}
+┃
+┃ 1️⃣ Download Menu
+┃ 2️⃣ Search Menu
+┃ 3️⃣ Group Menu
+┃ 4️⃣ Owner Menu
+┃ 5️⃣ Fun Menu
+┃
+╰━━━━━━━━━━━━━━⬣
+
+Reply with a number to select a menu.`;
+
+    const sentMsg = await conn.sendMessage(from, {
+        text: menuText
     }, { quoted: mek });
+
+    // Save message id for reply checking
+    global.menuReplies = global.menuReplies || {};
+    global.menuReplies[sentMsg.key.id] = true;
 });
 
-// Download Menu
-cmd({ pattern: "dlmenu", react: "📥" }, async (conn, mek, m, { reply }) => {
-    reply(`📥 *Download Menu*
+// Reply Handler
+cmd({
+    on: "body"
+}, async (conn, mek, m, { from, body, reply }) => {
+
+    if (!mek.message?.extendedTextMessage?.contextInfo?.stanzaId) return;
+
+    const repliedMsgId = mek.message.extendedTextMessage.contextInfo.stanzaId;
+
+    if (!global.menuReplies || !global.menuReplies[repliedMsgId]) return;
+
+    switch (body) {
+        case '1':
+            return reply(`📥 *Download Menu*
 
 .song
 .video
 .apk
 .play`);
-});
 
-// Search Menu
-cmd({ pattern: "searchmenu", react: "🔍" }, async (conn, mek, m, { reply }) => {
-    reply(`🔍 *Search Menu*
+        case '2':
+            return reply(`🔍 *Search Menu*
 
 .google
 .yts
 .weather`);
-});
 
-// Group Menu
-cmd({ pattern: "groupmenu", react: "👥" }, async (conn, mek, m, { reply }) => {
-    reply(`👥 *Group Menu*
+        case '3':
+            return reply(`👥 *Group Menu*
 
 .kick
 .add
 .promote`);
-});
 
-// Owner Menu
-cmd({ pattern: "ownermenu", react: "👑" }, async (conn, mek, m, { reply }) => {
-    reply(`👑 *Owner Menu*
+        case '4':
+            return reply(`👑 *Owner Menu*
 
 .restart
 .shutdown
 .block`);
+
+        case '5':
+            return reply(`😂 *Fun Menu*
+
 });
