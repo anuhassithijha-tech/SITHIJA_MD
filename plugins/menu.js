@@ -1,174 +1,145 @@
-const { cmd, commands } = require("../command");
+const { cmd } = require("../command");
 const config = require("../config");
 
 const menuImage =
   config.MENU_IMAGE ||
   "https://files.catbox.moe/5w0t9b.jpg";
 
-// MENU COMMAND
 cmd({
-  pattern: "menu",
-  react: "🌸",
-  desc: "Modern Selectable Menu",
-  category: "main",
-  filename: __filename
+    pattern: "menu",
+    react: "🧬",
+    desc: "Simple Menu",
+    category: "main",
+    filename: __filename
 },
 async (conn, mek, m, {
-  from,
-  pushname,
-  reply
+    from,
+    pushname
 }) => {
 
-  try {
+    const speed = Math.floor(Math.random() * 100);
 
-    // CATEGORY GROUP
-    const grouped = {};
+    const menu = `
+╭───────────────❍
+│ 🟢 SYSTEM STATUS
+├───────────────❍
+│ 💻 VERSION : 1.0.0
+│ ⚡ LATENCY : ${speed}MS
+│ 👤 USER : ${pushname}
+╰───────────────❍
 
-    for (const c of commands) {
+╭───────────────❍
+│ 📂 CATEGORIES
+├───────────────❍
+│ 🌿 1 │ DOWNLOAD
+│ 🌿 2 │ GROUP
+│ 🌿 3 │ OWNER
+│ 🌿 4 │ SYSTEM
+│ 🌿 5 │ SEARCH
+╰───────────────❍
 
-      if (c.dontAddCommandList)
-        continue;
-
-      const cat = (
-        c.category || "other"
-      ).toUpperCase();
-
-      if (!grouped[cat])
-        grouped[cat] = [];
-
-      grouped[cat].push(c);
-    }
-
-    // MENU ROWS
-    const rows = [];
-
-    Object.keys(grouped).forEach(cat => {
-
-      rows.push({
-        title: `${cat} MENU`,
-        description: `Open ${cat} commands`,
-        rowId: `.open_${cat}`
-      });
-
-    });
-
-    // SEND LIST MENU
-    await conn.sendMessage(
-      from,
-      {
-        image: { url: menuImage },
-
-        caption:
-`╭━━━〔 🌸 SITHIJA-MD 🌸 〕━━━⬣
-
-👋 Welcome ${pushname}
-
-⚡ Modern Selectable Menu
-📂 Click Button Below
-
-╰━━━━━━━━━━━━━━━━⬣`,
-
-        footer: "SITHIJA-MD",
-
-        title: "🌸 MAIN MENU",
-
-        buttonText: "SELECT MENU",
-
-        sections: [
-          {
-            title: "🌸 MENU LIST",
-            rows: rows
-          }
-        ]
-      },
-      { quoted: mek }
-    );
-
-  } catch (e) {
-
-    console.log(e);
-    reply(`${e}`);
-
-  }
-});
-
-// OPEN CATEGORY
-cmd({
-  on: "body"
-},
-async (conn, mek, m, {
-  from,
-  body,
-  reply
-}) => {
-
-  try {
-
-    if (!body.startsWith(".open_"))
-      return;
-
-    const category =
-      body.replace(".open_", "");
-
-    // GROUP COMMANDS AGAIN
-    const grouped = {};
-
-    for (const c of commands) {
-
-      if (c.dontAddCommandList)
-        continue;
-
-      const cat = (
-        c.category || "other"
-      ).toUpperCase();
-
-      if (!grouped[cat])
-        grouped[cat] = [];
-
-      grouped[cat].push(c);
-    }
-
-    const cmds = grouped[category];
-
-    if (!cmds)
-      return reply("❌ Menu Not Found");
-
-    // CREATE MENU TEXT
-    let text =
-`╭━━━〔 🌸 ${category} MENU 🌸 〕━━━⬣
-
+📌 REPLY WITH NUMBER (1-5)
 `;
 
-    cmds.forEach((c, i) => {
-
-      text +=
-`┃ ${i + 1}. ${config.PREFIX}${c.pattern}
-┃ 🌸 ${c.desc || "No Description"}
-
-`;
-
-    });
-
-    text +=
-`╰━━━━━━━━━━━━━━━━⬣
-
-📊 Total Commands : ${cmds.length}
-
-> ⚡ POWERED BY SITHIJA-MD`;
-
-    // SEND CATEGORY MENU
-    await conn.sendMessage(
-      from,
-      {
-        image: { url: menuImage },
-        caption: text
-      },
-      { quoted: mek }
+    const sent = await conn.sendMessage(
+        from,
+        {
+            image: { url: menuImage },
+            caption: menu
+        },
+        { quoted: mek }
     );
 
-  } catch (e) {
+    const msgId = sent.key.id;
 
-    console.log(e);
+    conn.ev.on("messages.upsert", async ({ messages }) => {
 
-  }
+        const msg = messages[0];
+        if (!msg.message) return;
+
+        const text =
+            msg.message.conversation ||
+            msg.message.extendedTextMessage?.text;
+
+        const replyId =
+            msg.message.extendedTextMessage?.contextInfo?.stanzaId;
+
+        if (replyId === msgId) {
+
+            let txt = "";
+
+            switch (text) {
+
+                case "1":
+                    txt = `
+╭──〔 📥 DOWNLOAD MENU 〕──❍
+│ 🌿 .tiktok  - Download TikTok videos
+│ 🌿 .fb      - Download Facebook videos
+│ 🌿 .song    - Download songs/mp3
+│ 🌿 .video   - Download videos
+╰────────────────❍`;
+                    break;
+
+                case "2":
+                    txt = `
+╭──〔 👥 GROUP MENU 〕──❍
+│ 🌿 .kick         - Remove group member
+│ 🌿 .jid          - Get group/user jid
+│ 🌿 .forward      - Forward messages
+│ 🌿 .tagall       - Mention all members
+│ 🌿 .setpp        - Change group profile
+│ 🌿 .admins       - Show admins list
+│ 🌿 .add/.invite  - Add members
+│ 🌿 .promote      - Promote member
+│ 🌿 .demote       - Demote admin
+│ 🌿 .unmute/.open - Open group chat
+│ 🌿 .close/.mute  - Close group chat
+│ 🌿 .revoke       - Reset invite link
+│ 🌿 .link/.grouplink - Get group link
+│ 🌿 .setsubject   - Change group name
+│ 🌿 .setdesc      - Change description
+│ 🌿 .groupinfo/.ginfo - Group details
+╰────────────────❍`;
+                    break;
+
+                case "3":
+                    txt = `
+╭──〔 👑 OWNER MENU 〕──❍
+│ 🌿 .owner - Show bot owner
+╰────────────────❍`;
+                    break;
+
+                case "4":
+                    txt = `
+╭──〔 ⚙️ SYSTEM MENU 〕──❍
+│ 🌿 .alive   - Bot online status
+│ 🌿 .ping    - Check bot speed
+│ 🌿 .menu    - Open menu
+│ 🌿 .uptime  - Bot running time
+╰────────────────❍`;
+                    break;
+
+                case "5":
+                    txt = `
+╭──〔 🔎 MOVIE MENU 〕──❍
+│ 🌿 .movie     - Search movies
+│ 🌿 .cinesubz  - Search Cinesubz
+│ 🌿 .cinetv    - Search CineTV
+╰────────────────❍`;
+                    break;
+
+                default:
+                    txt = "❌ Invalid Number";
+            }
+
+            await conn.sendMessage(
+                from,
+                {
+                    text: txt
+                },
+                { quoted: msg }
+            );
+        }
+    });
+
 });
