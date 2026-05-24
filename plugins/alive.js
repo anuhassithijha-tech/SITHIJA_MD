@@ -52,10 +52,7 @@ async (conn, mek, m, {
                 forwardingScore: 999,
                 isForwarded: true,
                 externalAdReply: {
-                    title: "SITHIJA MD",
-                    body: "WHATSAPP MULTI DEVICE BOT",
                     thumbnailUrl: config.ALIVE_IMG,
-                    sourceUrl: "https://github.com/",
                     mediaType: 1,
                     renderLargerThumbnail: true
                 }
