@@ -26,18 +26,26 @@ async (conn, mek, m, { from, pushname, reply }) => {
             os.totalmem() / 1024 / 1024
         ).toFixed(0);
 
-        const latency = Math.floor(Math.random() * 2000);
+        const latency = Date.now() - (mek.messageTimestamp * 1000 || Date.now());
+
+        // 🔥 AUTO NAME FIX
+        const name = pushname || await conn.getName(from) || "User";
+
+        const time = moment().tz("Asia/Colombo").format("hh:mm A");
+        const date = moment().tz("Asia/Colombo").format("YYYY-MM-DD");
 
         const aliveText = `
 ☘︎ s ɪ ᴛ ʜ ɪ ᴊ ᴀ  ᴍ ᴅ | ᴠ1.0.0 ☘︎
- 👋 ${pushname || "hello"} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
+👋 ${name} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
 
 ╭─ s ʏ s ᴛ ᴇ ᴍ  s ᴛ ᴀ ᴛ s ⊷
 │ 📗 sᴛᴀᴛᴜs : ᴏɴʟɪɴᴇ
 │ 📟 ᴠᴇʀsɪᴏɴ : 1.0.0
 │ 🛡️ ᴍᴏᴅᴇ : ᴘᴜʙʟɪᴄ
-│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${latency}ᴍs
-│ ⏳ ᴜᴘᴛɪᴍᴇ : ${hours}ʜ ${minutes}ᴍ
+│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${Math.abs(latency)}ms
+│ ⏳ ᴜᴘᴛɪᴍᴇ : ${hours}h ${minutes}m
+│ 🕒 ᴛɪᴍᴇ : ${time}
+│ 📅 ᴅᴀᴛᴇ : ${date}
 ╰──────────⊷
 
 ╭─ ᴏ ᴡ ɴ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
@@ -47,7 +55,7 @@ async (conn, mek, m, { from, pushname, reply }) => {
 ╰──────────⊷
 
 ╭─ s ᴇ ʀ ᴠ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
-│ 🍀 ʀᴀᴍ : ${ramUsage}ᴍʙ / ${totalRam}ᴍʙ
+│ 🍀 ʀᴀᴍ : ${ramUsage}MB / ${totalRam}MB
 │ 🪴 ɴᴏᴅᴇ : ${process.version}
 │ ☁️ ʜᴏsᴛ : Koyeb
 ╰──────────⊷
@@ -59,15 +67,11 @@ async (conn, mek, m, { from, pushname, reply }) => {
 > ✦ ᴘᴏᴡᴇʀᴇᴅ ʙʏ sɪᴛʜɪᴊᴀ ✦
 `;
 
-        await conn.sendMessage(
-            from,
-            {
-                text: aliveText
-            },
-            {
-                quoted: mek
-            }
-        );
+        await conn.sendMessage(from, {
+            text: aliveText
+        }, {
+            quoted: mek
+        });
 
     } catch (e) {
         console.log(e);
