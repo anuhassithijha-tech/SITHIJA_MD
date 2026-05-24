@@ -8,7 +8,7 @@ config.MENU_IMAGE ||
 cmd({
 pattern: "menu",
 react: "🌸",
-desc: "Menu System",
+desc: "Main Menu",
 category: "main",
 filename: __filename
 },
@@ -20,62 +20,34 @@ reply
 
 try {
 
-const uptime = runtime(process.uptime());
-
-const ram = (
-process.memoryUsage().heapUsed /
-1024 /
-1024
-).toFixed(2);
-
 const categories = [];
 
-commands.forEach(cmd => {
+commands.forEach(c => {
 
 if (
-cmd.category &&
+c.category &&
 !categories.includes(
-cmd.category.toUpperCase()
+c.category.toUpperCase()
 ) &&
-!cmd.dontAddCommandList
+!c.dontAddCommandList
 ) {
 
 categories.push(
-cmd.category.toUpperCase()
+c.category.toUpperCase()
 );
 
 }
 
 });
 
-let text = `
-╔═══════〔 🌸 SITHIJA MD 🌸 〕═══════╗
+const rows = [];
 
-👋 HELLO ${pushname}
+categories.forEach(cat => {
 
-╭───────────────❍
-│ 👾 BOT : SITHIJA-MD
-│ 👤 USER : ${pushname}
-│ 📞 OWNER : ${config.OWNER_NUMBER}
-│ ⏰ UPTIME : ${uptime}
-│ 📂 RAM : ${ram} MB
-│ 📊 COMMANDS : ${commands.length}
-│ 🪄 PREFIX : ${config.PREFIX}
-╰───────────────❍
-
-🌸 SELECT CATEGORY 🌸
-`;
-
-const buttons = [];
-
-categories.slice(0,3).forEach((cat, i) => {
-
-buttons.push({
-buttonId: `.list ${cat}`,
-buttonText: {
-displayText: cat
-},
-type: 1
+rows.push({
+title: `${cat} MENU`,
+rowId: `.list ${cat}`,
+description: `Open ${cat} commands`
 });
 
 });
@@ -86,10 +58,23 @@ from,
 image: {
 url: headerImage
 },
-caption: text,
-footer: "⚡ POWERED BY SITHIJA MD",
-buttons: buttons,
-headerType: 4
+caption:
+`🌸 *SITHIJA MD MENU* 🌸
+
+👤 User : ${pushname}
+
+📊 Commands : ${commands.length}
+
+⚡ Select Menu Category Below`,
+footer: "SITHIJA MD",
+title: "MENU LIST",
+buttonText: "OPEN MENU",
+sections: [
+{
+title: "MENU CATEGORY",
+rows: rows
+}
+]
 },
 {
 quoted: mek
@@ -108,7 +93,6 @@ reply(`${e}`);
 
 cmd({
 pattern: "list ?(.*)",
-desc: "Command List",
 dontAddCommandList: true
 },
 async (conn, mek, m, {
@@ -129,31 +113,23 @@ c.category.toUpperCase() === category
 );
 
 if (!cmds.length)
-return reply("❌ Category Not Found");
+return reply("❌ No Commands Found");
 
-let text = `
-╔═══════〔 ${category} MENU 〕═══════╗
+let text =
+`╔══════〔 ${category} MENU 〕══════╗
 
-╭───────────────❍
 `;
 
 cmds.forEach(c => {
 
-text += `
-│ ✦ ${config.PREFIX}${c.pattern}
-│ 🌸 ${c.desc || "No Description"}
-│
+text += `✦ .${c.pattern}
+🌸 ${c.desc || "No Description"}
+
 `;
 
 });
 
-text += `
-╰───────────────❍
-
-📊 TOTAL COMMANDS : ${cmds.length}
-
-⚡ SITHIJA MD
-`;
+text += `⚡ POWERED BY SITHIJA MD`;
 
 await conn.sendMessage(
 from,
@@ -177,21 +153,3 @@ reply(`${e}`);
 }
 
 });
-
-function runtime(seconds) {
-
-seconds = Number(seconds);
-
-const d = Math.floor(seconds / (3600 * 24));
-const h = Math.floor(seconds % (3600 * 24) / 3600);
-const m = Math.floor(seconds % 3600 / 60);
-const s = Math.floor(seconds % 60);
-
-return (
-(d ? d + "d " : "") +
-(h ? h + "h " : "") +
-(m ? m + "m " : "") +
-(s ? s + "s" : "")
-);
-
-}
