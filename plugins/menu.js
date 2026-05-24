@@ -1,7 +1,9 @@
 const { cmd, commands } = require("../command");
 const config = require("../config");
+
 const {
-    proto
+    proto,
+    generateWAMessageContent
 } = require("@whiskeysockets/baileys");
 
 const pendingMenu = {};
@@ -27,6 +29,7 @@ async (conn, mek, m, {
 try {
 
 const uptime = process.uptime();
+
 const ram = (
 process.memoryUsage().heapUsed /
 1024 /
@@ -47,14 +50,17 @@ if (!commandMap[category])
 commandMap[category] = [];
 
 commandMap[category].push(command);
+
 }
 
 const categories = Object.keys(commandMap);
 
 let menuText = `
-╔══════〔 🌸 SITHIJA-MD 🌸 〕══════╗
+╔═══════〔 🌸 SITHIJA-MD 🌸 〕═══════╗
 
 👋 HELLO ${pushname}
+
+✦ Welcome To The Anime World ✦
 
 ╭───────────────❍
 │ 👾 BOT : SITHIJA-MD
@@ -66,16 +72,16 @@ let menuText = `
 │ 🪄 PREFIX : ${config.PREFIX}
 ╰───────────────❍
 
-🌸 SELECT CATEGORY BELOW
+🌸 SELECT CATEGORY BELOW 🌸
 `;
 
-const buttonArray = [];
+const buttons = [];
 
 categories.forEach((cat, i) => {
 
 menuText += `\n${i + 1}. ${cat} MENU`;
 
-buttonArray.push({
+buttons.push({
 name: "quick_reply",
 buttonParamsJson: JSON.stringify({
 display_text: `${cat}`,
@@ -85,7 +91,8 @@ id: `.cat_${i}`
 
 });
 
-const media = await conn.prepareWAMessageMedia(
+const { imageMessage } =
+await generateWAMessageContent(
 {
 image: {
 url: headerImage
@@ -107,8 +114,8 @@ proto.Message.InteractiveMessage.create({
 header: {
 title: "🌸 SITHIJA MD 🌸",
 subtitle: "WHATSAPP BOT",
-imageMessage: media.imageMessage,
-hasMediaAttachment: true
+hasMediaAttachment: true,
+imageMessage: imageMessage
 },
 
 body: {
@@ -120,7 +127,7 @@ text: "⚡ POWERED BY SITHIJA-MD"
 },
 
 nativeFlowMessage: {
-buttons: buttonArray
+buttons: buttons
 }
 
 })
@@ -137,8 +144,13 @@ categories
 };
 
 } catch (e) {
+
 console.log(e);
-reply(`${e}`);
+
+reply(
+`❌ ERROR:\n${e}`
+);
+
 }
 
 });
@@ -156,8 +168,13 @@ reply
 
 try {
 
-if (!pendingMenu[sender])
-return reply("❌ Menu session expired.");
+if (!pendingMenu[sender]) {
+
+return reply(
+"❌ Menu Session Expired"
+);
+
+}
 
 const {
 commandMap,
@@ -166,8 +183,16 @@ categories
 
 const index = parseInt(match);
 
-if (isNaN(index))
-return reply("❌ Invalid category.");
+if (
+isNaN(index) ||
+index >= categories.length
+) {
+
+return reply(
+"❌ Invalid Category"
+);
+
+}
 
 const selectedCategory =
 categories[index];
@@ -176,7 +201,7 @@ const cmdsInCategory =
 commandMap[selectedCategory];
 
 let cmdText = `
-╔══════〔 🌸 ${selectedCategory} MENU 🌸 〕══════╗
+╔═══════〔 🌸 ${selectedCategory} MENU 🌸 〕═══════╗
 
 ╭───────────────❍
 `;
@@ -188,7 +213,9 @@ c.pattern,
 ...(c.alias || [])
 ]
 .filter(Boolean)
-.map(p => `${config.PREFIX}${p}`);
+.map(p =>
+`${config.PREFIX}${p}`
+);
 
 cmdText += `
 │ ✦ ${patterns.join(", ")}
@@ -201,7 +228,8 @@ cmdText += `
 cmdText += `
 ╰───────────────❍
 
-📊 TOTAL COMMANDS : ${cmdsInCategory.length}
+📊 TOTAL COMMANDS :
+${cmdsInCategory.length}
 
 ⚡ POWERED BY SITHIJA-MD
 `;
@@ -222,8 +250,13 @@ quoted: mek
 delete pendingMenu[sender];
 
 } catch (e) {
+
 console.log(e);
-reply(`${e}`);
+
+reply(
+`❌ ERROR:\n${e}`
+);
+
 }
 
 });
