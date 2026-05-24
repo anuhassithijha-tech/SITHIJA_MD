@@ -1,46 +1,16 @@
 const { cmd } = require("../command");
 
 cmd({
-pattern: "testbtn",
-react: "✅",
-desc: "Button Test",
-category: "test",
-filename: __filename
+pattern: "test2",
+category: "test"
 },
-async (conn, mek, m, {
-from,
-reply
-}) => {
+async (conn, mek, m, { from }) => {
 
-try {
-
-await conn.sendMessage(
-from,
-{
-text: "🌸 BUTTON TEST SUCCESS",
-footer: "SITHIJA MD",
-buttons: [
-{
-buttonId: ".ping",
-buttonText: {
-displayText: "PING"
-},
-type: 1
-}
-],
-headerType: 1
-},
-{
+await conn.sendMessage(from,{
+text:
+"🌸 BUTTON TEST 🌸\n\nReply .ping"
+},{
 quoted: mek
-}
-);
-
-} catch (e) {
-
-console.log(e);
-
-reply(`${e}`);
-
-}
+});
 
 });
