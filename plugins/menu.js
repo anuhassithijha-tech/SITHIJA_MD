@@ -17,9 +17,11 @@ async (conn, mek, m, {
     pushname
 }) => {
 
-    const speed = Math.floor(Math.random() * 100);
+    try {
 
-    const menu = `
+        const speed = Math.floor(Math.random() * 100);
+
+        const menu = `
 ╭─ [ 🟢 ꜱʏꜱᴛᴇᴍ ꜱᴛᴀᴛᴜꜱ ] ─⊷
 │ 📟 ᴠᴇʀꜱɪᴏɴ : 1.0.0
 │ ⚡ ʟᴀᴛᴇɴᴄʏ : ${speed}ᴍꜱ
@@ -37,30 +39,30 @@ async (conn, mek, m, {
 > 📌 ʀᴇᴘʟʏ ᴡɪᴛʜ ɴᴜᴍʙᴇʀ (1-5)
 `;
 
-    const sent = await conn.sendMessage(
-        from,
-        {
-            image: { url: menuImage },
-            caption: menu
-        },
-        { quoted: mek }
-    );
+        const sentMsg = await conn.sendMessage(
+            from,
+            {
+                image: { url: menuImage },
+                caption: menu
+            },
+            { quoted: mek }
+        );
 
-    const msgId = sent.key.id;
+        const messageID = sentMsg.key.id;
 
-    conn.ev.on("messages.upsert", async ({ messages }) => {
+        const listener = async ({ messages }) => {
 
-        const msg = messages[0];
-        if (!msg.message) return;
+            const msg = messages[0];
+            if (!msg.message) return;
 
-        const text =
-            msg.message.conversation ||
-            msg.message.extendedTextMessage?.text;
+            const text =
+                msg.message.conversation ||
+                msg.message.extendedTextMessage?.text;
 
-        const replyId =
-            msg.message.extendedTextMessage?.contextInfo?.stanzaId;
+            const replyId =
+                msg.message.extendedTextMessage?.contextInfo?.stanzaId;
 
-        if (replyId === msgId) {
+            if (replyId !== messageID) return;
 
             let txt = "";
             let img = menuImage;
@@ -68,8 +70,6 @@ async (conn, mek, m, {
             switch (text) {
 
                 case "1":
-
-                    img = "https://files.catbox.moe/5w0t9b.jpg";
 
                     txt = `
 ╭──〔 📥 ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴇɴᴜ 〕──⊷
@@ -81,8 +81,6 @@ async (conn, mek, m, {
                     break;
 
                 case "2":
-
-                    img = "https://files.catbox.moe/5w0t9b.jpg";
 
                     txt = `
 ╭──〔 👥 ɢʀᴏᴜᴘ ᴍᴇɴᴜ 〕──⊷
@@ -107,8 +105,6 @@ async (conn, mek, m, {
 
                 case "3":
 
-                    img = "https://files.catbox.moe/5w0t9b.jpg";
-
                     txt = `
 ╭──〔 👑 ᴏᴡɴᴇʀ ᴍᴇɴᴜ 〕──⊷
 │ ☘︎ .owner - Show bot owner
@@ -116,8 +112,6 @@ async (conn, mek, m, {
                     break;
 
                 case "4":
-
-                    img = "https://files.catbox.moe/5w0t9b.jpg";
 
                     txt = `
 ╭──〔 ⚙️ ꜱʏꜱᴛᴇᴍ ᴍᴇɴᴜ 〕──⊷
@@ -129,8 +123,6 @@ async (conn, mek, m, {
                     break;
 
                 case "5":
-
-                    img = "https://files.catbox.moe/5w0t9b.jpg";
 
                     txt = `
 ╭──〔 🎬 ᴍᴏᴠɪᴇ ᴍᴇɴᴜ 〕──⊷
@@ -152,7 +144,13 @@ async (conn, mek, m, {
                 },
                 { quoted: msg }
             );
-        }
-    });
+
+        };
+
+        conn.ev.on("messages.upsert", listener);
+
+    } catch (e) {
+        console.log(e);
+    }
 
 });
