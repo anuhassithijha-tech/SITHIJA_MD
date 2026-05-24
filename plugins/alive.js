@@ -1,45 +1,36 @@
+const { cmd } = require('../command');
+const config = require('../config');
 const os = require("os");
-const moment = require("moment-timezone");
-const { cmd } = require("../command");
 
 cmd({
     pattern: "alive",
-    react: "🎋",
-    desc: "Bot alive status",
+    desc: "Check bot online or no.",
     category: "main",
     filename: __filename
 },
-async (conn, mek, m, { from, pushname, reply }) => {
-
+async (danuwamd, mek, m, {
+    from, pushname, reply
+}) => {
     try {
 
-        const uptime = process.uptime();
+        const start = Date.now();
 
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        const seconds = Math.floor(uptime % 60);
+        const uptimeSec = process.uptime();
+        const hours = Math.floor(uptimeSec / 3600);
+        const minutes = Math.floor((uptimeSec % 3600) / 60);
+        const seconds = Math.floor(uptimeSec % 60);
 
-        const ramUsage = (
-            process.memoryUsage().heapUsed / 1024 / 1024
-        ).toFixed(2);
+        const latency = Date.now() - start;
 
-        const totalRam = (
-            os.totalmem() / 1024 / 1024
-        ).toFixed(0);
+        const date = new Date().toLocaleDateString();
+        const time = new Date().toLocaleTimeString();
 
-        // ⚡ SAFE LATENCY (index compatible)
-        const latency = Math.abs(Date.now() - (mek.messageTimestamp * 1000 || Date.now()));
+        const totalRam = Math.round(os.totalmem() / 1024 / 1024);
+        const ramUsage = Math.round((os.totalmem() - os.freemem()) / 1024 / 1024);
 
-        // 🔥 AUTO NAME FIX (index compatible)
-        const name = pushname || await conn.getName(from) || "User";
+        const caption = `☘︎ s ɪ ᴛ ʜ ɪ ᴊ ᴀ  ᴍ ᴅ | ᴠ1.0.0 ☘︎
 
-        const time = moment().tz("Asia/Colombo").format("hh:mm A");
-        const date = moment().tz("Asia/Colombo").format("YYYY-MM-DD");
-
-        const aliveText = `
-☘︎ s ɪ ᴛ ʜ ɪ ᴊ ᴀ  ᴍ ᴅ | ᴠ1.0.0 ☘︎
-
-👋 ${name} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
+👋 ${pushname || "User"} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
 
 ╭─ s ʏ s ᴛ ᴇ ᴍ  s ᴛ ᴀ ᴛ s ⊷
 │ 📗 sᴛᴀᴛᴜs : ᴏɴʟɪɴᴇ
@@ -51,33 +42,21 @@ async (conn, mek, m, { from, pushname, reply }) => {
 │ 📅 ᴅᴀᴛᴇ : ${date}
 ╰──────────⊷
 
-╭─ ᴏ ᴡ ɴ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
-│ 👤 ᴏᴡɴᴇʀ : sɪᴛʜɪᴊᴀ
-│ 🌿 ʟɪʙʀᴀʀʏ : ʙᴀɪʟᴇʏs
-│ 📍 ʟᴏᴄᴀᴛɪᴏɴ : sʀɪ ʟᴀɴᴋᴀ
-╰──────────⊷
-
 ╭─ s ᴇ ʀ ᴠ ᴇʀ  ɪɴғᴏ ⊷
 │ 🍀 ʀᴀᴍ : ${ramUsage}MB / ${totalRam}MB
 │ 🪴 ɴᴏᴅᴇ : ${process.version}
 │ ☁️ ʜᴏsᴛ : Koyeb
 ╰──────────⊷
 
-✅ Use .menu to access commands
-✅ Use .owner for support
+> ✦ ᴘᴏᴡᴇʀᴇᴅ ʙʏ sɪᴛʜɪᴊᴀ`;
 
-> 「 ®sɪᴛʜɪᴊᴀ ✘ ᴍᴅ v1.0.0 」
-> ✦ ᴘᴏᴡᴇʀᴇᴅ ʙʏ sɪᴛʜɪᴊᴀ ✦
-`;
-
-        await conn.sendMessage(from, {
-            text: aliveText
-        }, {
-            quoted: mek
-        });
+        return await danuwamd.sendMessage(from, {
+            image: { url: config.ALIVE_IMG },
+            caption: caption
+        }, { quoted: mek });
 
     } catch (e) {
         console.log(e);
-        reply(String(e));
+        reply("❌ Error: " + e.message);
     }
 });
