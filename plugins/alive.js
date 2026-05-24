@@ -49,12 +49,6 @@ async (conn, mek, m, {
             image: { url: config.ALIVE_IMG },
             caption: aliveMsg,
             contextInfo: {
-                forwardingScore: 999,
-                isForwarded: true,
-                externalAdReply: {
-                    thumbnailUrl: config.ALIVE_IMG,
-                    mediaType: 1,
-                    renderLargerThumbnail: true
                 }
             }
         }, { quoted: mek });
