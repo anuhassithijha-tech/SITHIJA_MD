@@ -1,155 +1,56 @@
-const { cmd, commands } = require("../command");
-const config = require("../config");
+const { cmd } = require('../command');
+                    title: "👑 Owner Menu",
+                    rowId: ".ownermenu",
+                    description: "Open owner commands"
+                }
+            ]
+        }
+    ];
 
-const headerImage =
-config.MENU_IMAGE ||
-"https://github.com/sithija-bot/SITHIJA_MD/blob/main/alive.png1.png?raw=true";
+    await conn.sendMessage(from, {
+        text: `👋 Hello ${pushname}
 
-cmd({
-pattern: "menu",
-react: "🌸",
-desc: "Main Menu",
-category: "main",
-filename: __filename
-},
-async (conn, mek, m, {
-from,
-pushname,
-reply
-}) => {
-
-try {
-
-const categories = [];
-
-commands.forEach(c => {
-
-if (
-c.category &&
-!categories.includes(
-c.category.toUpperCase()
-) &&
-!c.dontAddCommandList
-) {
-
-categories.push(
-c.category.toUpperCase()
-);
-
-}
-
+Select a menu from the button below.`,
+        footer: 'GHOST X BOT',
+        title: '📜 MAIN MENU',
+        buttonText: 'SELECT MENU',
+        sections
+    }, { quoted: mek });
 });
 
-const rows = [];
+// Download Menu
+cmd({ pattern: "dlmenu", react: "📥" }, async (conn, mek, m, { reply }) => {
+    reply(`📥 *Download Menu*
 
-categories.forEach(cat => {
-
-rows.push({
-title: `${cat} MENU`,
-rowId: `.list ${cat}`,
-description: `Open ${cat} commands`
+.song
+.video
+.apk
+.play`);
 });
 
+// Search Menu
+cmd({ pattern: "searchmenu", react: "🔍" }, async (conn, mek, m, { reply }) => {
+    reply(`🔍 *Search Menu*
+
+.google
+.yts
+.weather`);
 });
 
-await conn.sendMessage(
-from,
-{
-image: {
-url: headerImage
-},
-caption:
-`🌸 *SITHIJA MD MENU* 🌸
+// Group Menu
+cmd({ pattern: "groupmenu", react: "👥" }, async (conn, mek, m, { reply }) => {
+    reply(`👥 *Group Menu*
 
-👤 User : ${pushname}
-
-📊 Commands : ${commands.length}
-
-⚡ Select Menu Category Below`,
-footer: "SITHIJA MD",
-title: "MENU LIST",
-buttonText: "OPEN MENU",
-sections: [
-{
-title: "MENU CATEGORY",
-rows: rows
-}
-]
-},
-{
-quoted: mek
-}
-);
-
-} catch (e) {
-
-console.log(e);
-
-reply(`${e}`);
-
-}
-
+.kick
+.add
+.promote`);
 });
 
-cmd({
-pattern: "list ?(.*)",
-dontAddCommandList: true
-},
-async (conn, mek, m, {
-from,
-match,
-reply
-}) => {
+// Owner Menu
+cmd({ pattern: "ownermenu", react: "👑" }, async (conn, mek, m, { reply }) => {
+    reply(`👑 *Owner Menu*
 
-try {
-
-const category =
-match.toUpperCase();
-
-const cmds = commands.filter(
-c =>
-c.category &&
-c.category.toUpperCase() === category
-);
-
-if (!cmds.length)
-return reply("❌ No Commands Found");
-
-let text =
-`╔══════〔 ${category} MENU 〕══════╗
-
-`;
-
-cmds.forEach(c => {
-
-text += `✦ .${c.pattern}
-🌸 ${c.desc || "No Description"}
-
-`;
-
-});
-
-text += `⚡ POWERED BY SITHIJA MD`;
-
-await conn.sendMessage(
-from,
-{
-image: {
-url: headerImage
-},
-caption: text
-},
-{
-quoted: mek
-}
-);
-
-} catch (e) {
-
-console.log(e);
-
-reply(`${e}`);
-
-}
-
+.restart
+.shutdown
+.block`);
 });
