@@ -17,6 +17,7 @@ async (conn, mek, m, { from, pushname, reply }) => {
 
         const hours = Math.floor(uptime / 3600);
         const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = Math.floor(uptime % 60);
 
         const ramUsage = (
             process.memoryUsage().heapUsed / 1024 / 1024
@@ -26,9 +27,10 @@ async (conn, mek, m, { from, pushname, reply }) => {
             os.totalmem() / 1024 / 1024
         ).toFixed(0);
 
-        const latency = Date.now() - (mek.messageTimestamp * 1000 || Date.now());
+        // ⚡ SAFE LATENCY (index compatible)
+        const latency = Math.abs(Date.now() - (mek.messageTimestamp * 1000 || Date.now()));
 
-        // 🔥 AUTO NAME FIX
+        // 🔥 AUTO NAME FIX (index compatible)
         const name = pushname || await conn.getName(from) || "User";
 
         const time = moment().tz("Asia/Colombo").format("hh:mm A");
@@ -36,14 +38,15 @@ async (conn, mek, m, { from, pushname, reply }) => {
 
         const aliveText = `
 ☘︎ s ɪ ᴛ ʜ ɪ ᴊ ᴀ  ᴍ ᴅ | ᴠ1.0.0 ☘︎
+
 👋 ${name} 💗! ʏᴏᴜʀ sʏsᴛᴇᴍ ɪs ʀᴜɴɴɪɴɢ ᴘᴇʀғᴇᴄᴛʟʏ
 
 ╭─ s ʏ s ᴛ ᴇ ᴍ  s ᴛ ᴀ ᴛ s ⊷
 │ 📗 sᴛᴀᴛᴜs : ᴏɴʟɪɴᴇ
 │ 📟 ᴠᴇʀsɪᴏɴ : 1.0.0
 │ 🛡️ ᴍᴏᴅᴇ : ᴘᴜʙʟɪᴄ
-│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${Math.abs(latency)}ms
-│ ⏳ ᴜᴘᴛɪᴍᴇ : ${hours}h ${minutes}m
+│ ⚡ ʟᴀᴛᴇɴᴄʏ : ${latency}ms
+│ ⏳ ᴜᴘᴛɪᴍᴇ : ${hours}h ${minutes}m ${seconds}s
 │ 🕒 ᴛɪᴍᴇ : ${time}
 │ 📅 ᴅᴀᴛᴇ : ${date}
 ╰──────────⊷
@@ -54,7 +57,7 @@ async (conn, mek, m, { from, pushname, reply }) => {
 │ 📍 ʟᴏᴄᴀᴛɪᴏɴ : sʀɪ ʟᴀɴᴋᴀ
 ╰──────────⊷
 
-╭─ s ᴇ ʀ ᴠ ᴇ ʀ  ɪ ɴ ғ ᴏ ⊷
+╭─ s ᴇ ʀ ᴠ ᴇʀ  ɪɴғᴏ ⊷
 │ 🍀 ʀᴀᴍ : ${ramUsage}MB / ${totalRam}MB
 │ 🪴 ɴᴏᴅᴇ : ${process.version}
 │ ☁️ ʜᴏsᴛ : Koyeb
@@ -75,6 +78,6 @@ async (conn, mek, m, { from, pushname, reply }) => {
 
     } catch (e) {
         console.log(e);
-        reply(`${e}`);
+        reply(String(e));
     }
 });
