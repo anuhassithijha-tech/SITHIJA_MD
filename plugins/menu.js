@@ -1,67 +1,270 @@
 const { cmd, commands } = require("../command");
 const config = require("../config");
+const {
+    proto
+} = require("@whiskeysockets/baileys");
 
 const pendingMenu = {};
 
+const headerImage =
+config.MENU_IMAGE ||
+"https://github.com/sithija-bot/SITHIJA_MD/blob/main/alive.png1.png?raw=true";
+
 cmd({
-  pattern: "menu",
-  react: "⚡",
-  desc: "Button category menu",
-  category: "main",
-  filename: __filename
-}, async (conn, mek, m, { from, sender, pushname, reply }) => {
+    pattern: "menu",
+    react: "🌸",
+    desc: "Show command categories",
+    category: "main",
+    filename: __filename
+},
+async (conn, mek, m, {
+    from,
+    sender,
+    pushname,
+    reply
+}) => {
 
-  try {
+try {
 
-    const commandMap = {};
+const uptime = process.uptime();
+const ram = (
+process.memoryUsage().heapUsed /
+1024 /
+1024
+).toFixed(2);
 
-    for (const command of commands) {
-      if (command.dontAddCommandList) continue;
+const commandMap = {};
 
-      const category = (command.category || "OTHER").toUpperCase();
+for (const command of commands) {
 
-      if (!commandMap[category]) commandMap[category] = [];
-      commandMap[category].push(command);
-    }
+if (command.dontAddCommandList) continue;
 
-    const categories = Object.keys(commandMap);
+const category = (
+command.category || "OTHER"
+).toUpperCase();
 
-    // 🔥 CREATE BUTTONS DYNAMICALLY
-    const buttons = categories.slice(0, 10).map((cat, i) => {
-      return {
-        buttonId: `cat_${cat}`,
-        buttonText: { displayText: `${i + 1}. ${cat}` },
-        type: 1
-      };
-    });
+if (!commandMap[category])
+commandMap[category] = [];
 
-    const buttonMessage = {
-      image: { url: config.MENU_IMAGE },
-      caption: `
-━━━━━━━━━━━━━━━━━━
-     ⚡ SITHIJA MD MENU ⚡
-━━━━━━━━━━━━━━━━━━
+commandMap[category].push(command);
+}
 
-👤 User : ${pushname}
-🟢 Status : ONLINE
+const categories = Object.keys(commandMap);
 
-👉 Select Category Below
-━━━━━━━━━━━━━━━━━━
-`,
-      footer: "⚡ POWERED BY SITHIJA MD",
-      buttons: buttons,
-      headerType: 4
-    };
+let menuText = `
+╔══════〔 🌸 SITHIJA-MD 🌸 〕══════╗
 
-    await conn.sendMessage(from, buttonMessage, { quoted: mek });
+👋 HELLO ${pushname}
 
-    pendingMenu[sender] = {
-      commandMap,
-      categories
-    };
+╭───────────────❍
+│ 👾 BOT : SITHIJA-MD
+│ 👤 USER : ${pushname}
+│ 📞 OWNER : ${config.OWNER_NUMBER}
+│ ⏰ UPTIME : ${runtime(uptime)}
+│ 📂 RAM : ${ram} MB
+│ 📊 COMMANDS : ${commands.length}
+│ 🪄 PREFIX : ${config.PREFIX}
+╰───────────────❍
 
-  } catch (e) {
-    console.log(e);
-    reply("❌ Error: " + e);
-  }
+🌸 SELECT CATEGORY BELOW
+`;
+
+const buttonArray = [];
+
+categories.forEach((cat, i) => {
+
+menuText += `\n${i + 1}. ${cat} MENU`;
+
+buttonArray.push({
+name: "quick_reply",
+buttonParamsJson: JSON.stringify({
+display_text: `${cat}`,
+id: `.cat_${i}`
+})
 });
+
+});
+
+const media = await conn.prepareWAMessageMedia(
+{
+image: {
+url: headerImage
+}
+},
+{
+upload: conn.waUploadToServer
+}
+);
+
+await conn.relayMessage(
+from,
+{
+viewOnceMessage: {
+message: {
+interactiveMessage:
+proto.Message.InteractiveMessage.create({
+
+header: {
+title: "🌸 SITHIJA MD 🌸",
+subtitle: "WHATSAPP BOT",
+imageMessage: media.imageMessage,
+hasMediaAttachment: true
+},
+
+body: {
+text: menuText
+},
+
+footer: {
+text: "⚡ POWERED BY SITHIJA-MD"
+},
+
+nativeFlowMessage: {
+buttons: buttonArray
+}
+
+})
+}
+}
+},
+{}
+);
+
+pendingMenu[sender] = {
+step: "category",
+commandMap,
+categories
+};
+
+} catch (e) {
+console.log(e);
+reply(`${e}`);
+}
+
+});
+
+cmd({
+pattern: "cat_(.*)",
+dontAddCommandList: true
+},
+async (conn, mek, m, {
+from,
+match,
+sender,
+reply
+}) => {
+
+try {
+
+if (!pendingMenu[sender])
+return reply("❌ Menu session expired.");
+
+const {
+commandMap,
+categories
+} = pendingMenu[sender];
+
+const index = parseInt(match);
+
+if (isNaN(index))
+return reply("❌ Invalid category.");
+
+const selectedCategory =
+categories[index];
+
+const cmdsInCategory =
+commandMap[selectedCategory];
+
+let cmdText = `
+╔══════〔 🌸 ${selectedCategory} MENU 🌸 〕══════╗
+
+╭───────────────❍
+`;
+
+cmdsInCategory.forEach(c => {
+
+const patterns = [
+c.pattern,
+...(c.alias || [])
+]
+.filter(Boolean)
+.map(p => `${config.PREFIX}${p}`);
+
+cmdText += `
+│ ✦ ${patterns.join(", ")}
+│ 🌸 ${c.desc || "No Description"}
+│
+`;
+
+});
+
+cmdText += `
+╰───────────────❍
+
+📊 TOTAL COMMANDS : ${cmdsInCategory.length}
+
+⚡ POWERED BY SITHIJA-MD
+`;
+
+await conn.sendMessage(
+from,
+{
+image: {
+url: headerImage
+},
+caption: cmdText
+},
+{
+quoted: mek
+}
+);
+
+delete pendingMenu[sender];
+
+} catch (e) {
+console.log(e);
+reply(`${e}`);
+}
+
+});
+
+function runtime(seconds) {
+
+seconds = Number(seconds);
+
+const d = Math.floor(
+seconds / (3600 * 24)
+);
+
+const h = Math.floor(
+seconds % (3600 * 24) / 3600
+);
+
+const m = Math.floor(
+seconds % 3600 / 60
+);
+
+const s = Math.floor(
+seconds % 60
+);
+
+const dDisplay =
+d > 0 ? d + "d " : "";
+
+const hDisplay =
+h > 0 ? h + "h " : "";
+
+const mDisplay =
+m > 0 ? m + "m " : "";
+
+const sDisplay =
+s > 0 ? s + "s" : "";
+
+return (
+dDisplay +
+hDisplay +
+mDisplay +
+sDisplay
+);
+
+}
